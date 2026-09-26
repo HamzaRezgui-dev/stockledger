@@ -1,11 +1,23 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
+    "target": "ES2022",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
+
+    // Correctness-first: this project models money-adjacent stock movements,
+    // so we want the compiler to reject the classes of bug that cause
+    // phantom inventory. See docs/adr/0001-append-only-ledger.md
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "verbatimModuleSyntax": true,
+    "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
