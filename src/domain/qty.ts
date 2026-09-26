@@ -62,7 +62,7 @@ export function qty(units: number): Qty {
   if (Math.abs(rounded) > MAX_MILLI) {
     throw new QtyError(`quantity ${units} is out of range`);
   }
-  return rounded as Qty;
+  return guard(rounded);
 }
 
 /** Build a Qty directly from a milli-unit integer (the DB and wire form). */
@@ -73,7 +73,7 @@ export function fromMilli(milli: number): Qty {
   if (Math.abs(milli) > MAX_MILLI) {
     throw new QtyError(`quantity ${milli} milli-units is out of range`);
   }
-  return milli as Qty;
+  return guard(milli);
 }
 
 /**
@@ -127,11 +127,19 @@ export function format(q: Qty): string {
   return s.includes(".") ? s.replace(/\.?0+$/, "") : s;
 }
 
+/**
+ * Range-check and normalise a milli-unit result.
+ *
+ * The `|| 0` collapses negative zero. IEEE-754 has two zeros and JS keeps them
+ * distinct under `Object.is`, so without this `negate(ZERO)` yields `-0`, which
+ * formats as "-0.000" and compares unequal to `ZERO` in a Map key or a
+ * `toBe` assertion. A ledger has exactly one zero.
+ */
 function guard(milli: number): Qty {
   if (Math.abs(milli) > MAX_MILLI) {
     throw new QtyError("quantity overflow");
   }
-  return milli as Qty;
+  return (milli || 0) as Qty;
 }
 
 export function add(a: Qty, b: Qty): Qty {
@@ -143,11 +151,11 @@ export function sub(a: Qty, b: Qty): Qty {
 }
 
 export function negate(q: Qty): Qty {
-  return -q as Qty;
+  return guard(-q);
 }
 
 export function abs(q: Qty): Qty {
-  return Math.abs(q) as Qty;
+  return guard(Math.abs(q));
 }
 
 /** Exact sum of many quantities. Integer addition, so order never matters. */
