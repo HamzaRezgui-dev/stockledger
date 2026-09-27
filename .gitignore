@@ -1,41 +1,114 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ============================================================================
+# StockLedger — polyglot monorepo: Java/Maven API + Node/Next web client
+# ============================================================================
 
-# dependencies
-/node_modules
-/.pnp
+# ----------------------------------------------------------------------------
+# Secrets and local config
+#
+# Everything env-shaped is ignored, then the example files are re-admitted, so
+# adding a new .env variant can never accidentally commit credentials.
+# ----------------------------------------------------------------------------
+.env
+.env.*
+*.local
+!.env.example
+!.env.*.example
+
+# Real credentials for a local override of Spring config.
+application-local.yaml
+application-local.yml
+application-local.properties
+apps/api/src/main/resources/application-local.*
+
+*.pem
+*.key
+*.p12
+*.jks
+!src/test/resources/**/*.jks
+
+# ----------------------------------------------------------------------------
+# Java / Maven
+# ----------------------------------------------------------------------------
+target/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/.gradle-enterprise/
+.mvn/.develocity/
+*.class
+*.jar
+*.war
+*.ear
+!**/.mvn/wrapper/*.jar
+hs_err_pid*
+replay_pid*
+*.hprof
+
+# Flyway sometimes leaves these behind on a failed migrate.
+apps/api/flyway.conf
+
+# ----------------------------------------------------------------------------
+# Node / pnpm / Next.js
+# ----------------------------------------------------------------------------
+node_modules/
+.pnp
 .pnp.*
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
+.pnpm-store/
+.pnpm-debug.log*
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
+.next/
+out/
+build/
+dist/
+.turbo/
 .vercel
 
-# typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ----------------------------------------------------------------------------
+# Tests, coverage, reports
+# ----------------------------------------------------------------------------
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+apps/api/target/site/jacoco/
+**/surefire-reports/
+**/failsafe-reports/
+
+# ----------------------------------------------------------------------------
+# Editors and OS
+#
+# Kept out of the repo rather than shared: this project has no agreed IDE, and
+# committing one person's workspace settings creates churn for everyone else.
+# ----------------------------------------------------------------------------
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ----------------------------------------------------------------------------
+# Local scratch
+#
+# A place to keep throwaway SQL and notes inside the repo without committing
+# them. Anything genuinely worth keeping belongs in docs/.
+# ----------------------------------------------------------------------------
+/scratch/
+/tmp/
+*.log

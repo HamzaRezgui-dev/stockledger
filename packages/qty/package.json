@@ -1,0 +1,22 @@
+{
+  "name": "@stockledger/qty",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Exact quantity arithmetic for the browser. Presentation and input validation only — the Java domain is authoritative.",
+  "main": "./src/qty.ts",
+  "types": "./src/qty.ts",
+  "exports": {
+    ".": "./src/qty.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.0",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.2"
+  }
+}

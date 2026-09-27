@@ -1,0 +1,40 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: stockledger-postgres
+    environment:
+      POSTGRES_DB: stockledger
+      POSTGRES_USER: stockledger
+      POSTGRES_PASSWORD: stockledger
+    ports:
+      # Fixed host port so the API, psql and any GUI client all agree.
+      # 5433, not 5432: the default is often already taken by another project's
+      # Postgres, and a fixed non-default port fails loudly at startup rather
+      # than silently connecting this app to the wrong database.
+      - "5433:5432"
+    volumes:
+      # Postgres 18+ wants a single mount at /var/lib/postgresql, not at
+      # .../data — it keeps the cluster in a version-named subdirectory so
+      # `pg_upgrade --link` can work across a mount boundary. Mounting
+      # .../data directly makes the 18 image refuse to start.
+      - postgres-data:/var/lib/postgresql
+    command:
+      # The ledger's write path depends on Postgres detecting serialization
+      # conflicts (see docs/adr/0003-serializable-transactions.md). These raise
+      # the ceiling on how many it can track before it starts aborting
+      # transactions for bookkeeping reasons rather than real conflicts.
+      - postgres
+      - -c
+      - max_pred_locks_per_transaction=512
+      - -c
+      - max_connections=200
+    healthcheck:
+      # `docker compose up --wait` blocks on this, so migrations never race
+      # a database that is still starting up.
+      test: ["CMD-SHELL", "pg_isready -U stockledger -d stockledger"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  postgres-data:

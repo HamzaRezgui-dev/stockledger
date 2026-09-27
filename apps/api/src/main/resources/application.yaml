@@ -1,0 +1,98 @@
+spring:
+  application:
+    name: stockledger-api
+
+  datasource:
+    # Port 5433, not the default 5432 — see compose.yaml.
+    url: jdbc:postgresql://localhost:5433/stockledger
+    username: stockledger
+    password: stockledger
+    hikari:
+      # The write path runs at SERIALIZABLE and retries on conflict. A small
+      # pool keeps conflict rates sane: 200 threads all retrying the same row
+      # is a thundering herd, not throughput.
+      maximum-pool-size: 20
+      # Never leave a connection's isolation level set by whoever used it last.
+      auto-commit: false
+
+  jpa:
+    hibernate:
+      # Flyway owns the schema. `validate` makes Hibernate check its entities
+      # match the migrated tables and fail fast on drift, without ever issuing
+      # DDL itself. `update` here would silently diverge from the migrations and
+      # could drop the append-only triggers the whole design depends on.
+      ddl-auto: validate
+    # Lazy loading must not leak into serialization: a rendered response should
+    # never trigger a surprise query after the transaction has closed.
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+          # Movements are inserted in batches when posting a transfer or a
+          # stock count with many lines.
+          batch_size: 50
+        order_inserts: true
+        # Keep the ledger's numeric(14,3) mapping exact, never float.
+        query:
+          in_clause_parameter_padding: true
+
+  flyway:
+    enabled: true
+    # Refuse to start against a database whose migration history does not match
+    # what is on disk, rather than guessing.
+    validate-on-migrate: true
+    # This is a greenfield schema; there is no pre-Flyway state to adopt.
+    baseline-on-migrate: false
+
+  docker:
+    compose:
+      # Resolved against the working directory, so run the app from apps/api.
+      file: ../../compose.yaml
+      # `start_only` leaves Postgres running when the app stops. The default
+      # would stop the container on every restart, and with it your dev data.
+      lifecycle-management: start_only
+
+  threads:
+    virtual:
+      # Java 21 virtual threads: the write path is I/O-bound on Postgres, and a
+      # retrying transaction spends most of its life waiting.
+      enabled: true
+
+server:
+  # 3001 leaves 3000 free for the Next.js client.
+  port: 3001
+  error:
+    # Never leak stack traces to an HTTP client.
+    include-stacktrace: never
+    include-message: always
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+
+logging:
+  level:
+    # Uncomment to watch the ledger's SQL during development.
+    # org.hibernate.SQL: DEBUG
+    # org.hibernate.orm.jdbc.bind: TRACE
+    dev.hamzarezgui.stockledger: DEBUG
+
+stockledger:
+  cors:
+    # The Next.js client. Explicit origins, never a wildcard: this API will
+    # eventually carry auth tokens.
+    allowed-origins:
+      - http://localhost:3000
+  ledger:
+    # How many times to retry a movement that lost a SERIALIZABLE conflict.
+    # See docs/adr/0003-serializable-transactions.md.
+    max-retries: 5
+    retry-delay-ms: 25

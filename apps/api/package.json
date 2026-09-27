@@ -1,0 +1,14 @@
+{
+  "name": "@stockledger/api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Spring Boot ledger API. This manifest exists only so Turborepo can drive Maven as a workspace task — there are no JavaScript dependencies here.",
+  "scripts": {
+    "dev": "./mvnw -q spring-boot:run",
+    "build": "./mvnw -q -DskipTests package",
+    "test": "./mvnw -q test",
+    "test:integration": "./mvnw -q verify",
+    "typecheck": "./mvnw -q -DskipTests compile",
+    "clean": "./mvnw -q clean"
+  }
+}

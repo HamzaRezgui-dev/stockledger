@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+/*
+ * StockLedger — an operator's instrument, not a marketing page.
+ *
+ * Design intent: high information density, figures that align, and states that
+ * are unmistakable at a glance in a stockroom. Someone scanning a shelf needs to
+ * see "negative", "expired" and "low" without reading words.
+ */
+
+@theme {
+  /* Neutrals: a slightly cool grey so the accent and alert hues stay legible. */
+  --color-surface: #ffffff;
+  --color-surface-raised: #f7f8fa;
+  --color-surface-sunken: #eef0f4;
+  --color-border: #dfe3ea;
+  --color-border-strong: #c3cad6;
+  --color-ink: #12161c;
+  --color-ink-muted: #5c6673;
+  --color-ink-subtle: #8a94a3;
+
+  /* Accent: a deep teal. Reads as "tool", not "consumer app". */
+  --color-accent: #0f6f6a;
+  --color-accent-hover: #0b5853;
+  --color-accent-soft: #e2f1f0;
+
+  /* Semantic states, each with a soft background for badges. */
+  --color-positive: #10705a;
+  --color-positive-soft: #e3f3ee;
+  --color-warning: #8a5a00;
+  --color-warning-soft: #fdf1dc;
+  --color-danger: #a32a26;
+  --color-danger-soft: #fceaea;
+
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+
+  --radius-card: 10px;
+}
+
+/*
+ * Dark mode redefines only the tokens, so every component follows without
+ * knowing which theme it is in.
+ */
+@media (prefers-color-scheme: dark) {
+  @theme {
+    --color-surface: #0e1116;
+    --color-surface-raised: #161b22;
+    --color-surface-sunken: #0a0d11;
+    --color-border: #262d38;
+    --color-border-strong: #39424f;
+    --color-ink: #e8ecf1;
+    --color-ink-muted: #9aa5b3;
+    --color-ink-subtle: #6b7684;
+
+    --color-accent: #3dbdb2;
+    --color-accent-hover: #55cfc4;
+    --color-accent-soft: #10312f;
+
+    --color-positive: #4cc79f;
+    --color-positive-soft: #102b24;
+    --color-warning: #e0a94a;
+    --color-warning-soft: #2e2313;
+    --color-danger: #f0736e;
+    --color-danger-soft: #331817;
+  }
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  background: var(--color-surface);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * Quantities are tabular everywhere.
+ *
+ * Proportional digits make a column of numbers ragged, which is how a
+ * transposed figure goes unnoticed on a stock sheet. This is the single most
+ * useful typographic decision in the whole app.
+ */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
